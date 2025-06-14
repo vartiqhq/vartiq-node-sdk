@@ -30,9 +30,17 @@ export interface Webhook {
   id: string;
   name: string;
   url: string;
-  secret: string;
   customHeaders: Array<{ key: string; value: string; _id?: string }>;
   headers: Array<{ key?: string; value?: string; _id?: string }>;
+  authMethod: {
+    method: WebhookAuthMethod;
+    hmacHeader?: string;
+    hmacSecret?: string;
+    userName?: string;
+    password?: string;
+    apiKey?: string;
+    apiKeyHeader?: string;
+  };
   createdAt: string;
   updatedAt: string;
   };
