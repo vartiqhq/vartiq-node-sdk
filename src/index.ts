@@ -6,6 +6,7 @@ import type {
   CreateWebhookInput,
 } from "./types/index";
 import crypto from "crypto";
+import axios, { AxiosInstance } from "axios";
 
 export * from "./types/index";
 
@@ -15,7 +16,7 @@ class ProjectAPI {
   async create(data: { name: string; description: string }): Promise<Project> {
     const res = await this.sdk.request<Project>(`/projects`, {
       method: "POST",
-      body: JSON.stringify(data),
+      data: JSON.stringify(data),
     });
     return res;
   }
@@ -35,7 +36,7 @@ class ProjectAPI {
   async update(id: string, data: Partial<Project>): Promise<Project> {
     const res = await this.sdk.request<Project>(`/projects/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      data: JSON.stringify(data),
     });
     return res;
   }
@@ -55,7 +56,7 @@ class AppAPI {
   }): Promise<App> {
     const res = await this.sdk.request<App>(`/apps`, {
       method: "POST",
-      body: JSON.stringify(data),
+      data: JSON.stringify(data),
     });
     return res;
   }
@@ -78,7 +79,7 @@ class AppAPI {
   async update(id: string, data: Partial<App>): Promise<App> {
     const res = await this.sdk.request<App>(`/apps/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      data: JSON.stringify(data),
     });
     return res;
   }
@@ -137,7 +138,7 @@ class WebhookAPI {
 
     const res = await this.sdk.request<Webhook>(`/webhooks`, {
       method: "POST",
-      body: JSON.stringify({
+      data: JSON.stringify({
         ...basePayload,
         ...authPayload,
       }),
@@ -160,7 +161,7 @@ class WebhookAPI {
   async update(id: string, data: Partial<Webhook>): Promise<Webhook> {
     const res = await this.sdk.request<Webhook>(`/webhooks/${id}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      data: JSON.stringify(data),
     });
     return res;
   }
@@ -176,7 +177,7 @@ class WebhookMessageAPI {
   async create(appId: string, payload: object): Promise<WebhookMessage> {
     const res = await this.sdk.request<WebhookMessage>(`/webhook-messages`, {
       method: "POST",
-      body: JSON.stringify({ appId, payload }),
+      data: JSON.stringify({ appId, payload }),
     });
     return res;
   }
@@ -186,76 +187,64 @@ const _testFetchSymbol = Symbol("testFetch");
 
 export class Vartiq {
   private apiKey: string;
-  private baseUrl: string;
-  private _fetch: typeof fetch;
+  private axiosInstance: AxiosInstance;
 
   public project: ProjectAPI;
   public app: AppAPI;
   public webhook: WebhookAPI;
 
-  constructor(apiKey: string, baseUrl?: string);
-
-  /** @internal Test constructor overload */
-  constructor(
-    apiKey: string,
-    baseUrl?: string,
-    ...testArgs: [unknown?, symbol?]
-  );
-
-  constructor(
-    apiKey: string,
-    baseUrl?: string,
-    ...testArgs: [unknown?, symbol?]
-  ) {
+  constructor(apiKey: string, baseUrl?: string) {
     if (!apiKey) throw new Error("API key is required");
+
     this.apiKey = apiKey;
-    this.baseUrl = (baseUrl || "http://localhost:4000").replace(/\/$/, "");
-    if (testArgs.length && testArgs[0] && testArgs[1] === _testFetchSymbol) {
-      this._fetch = testArgs[0] as typeof fetch;
-    } else {
-      if (typeof fetch === "undefined") {
-        import("node-fetch").then((mod) => {
-          global.fetch = mod.default as unknown as typeof fetch;
-        });
-        this._fetch = (() => {
-          throw new Error("fetch not ready");
-        }) as typeof fetch;
-      } else {
-        this._fetch = fetch;
-      }
-    }
+
+    this.axiosInstance = axios.create({
+      baseURL: (baseUrl || "https://api.us.vartiq.com").replace(/\/$/, ""),
+      headers: {
+        "x-api-key": this.apiKey,
+        "Content-Type": "application/json",
+      },
+    });
+
     this.project = new ProjectAPI(this);
     this.app = new AppAPI(this);
     this.webhook = new WebhookAPI(this);
   }
 
-  async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const res = await this._fetch(`${this.baseUrl}${path}`, {
-      ...options,
-      headers: {
-        ...(options.headers || {}),
-        "x-api-key": this.apiKey,
-        "Content-Type": "application/json",
-      },
-    });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
+  async request<T>(path: string, options: { method?: string; data?: unknown } = {}): Promise<T> {
+    try {
+      const { method = "GET", data } = options;
+      const response = await this.axiosInstance.request<T>({
+        url: path,
+        method,
+        data,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
-  /**
-   * Verifies a webhook signature. Returns the payload if valid, throws if not.
-   * @param payload The payload object received.
-   * @param signature The signature string to verify.
-   * @param webhookSecret The secret used to generate the signature.
-   */
-  public verify(
-    payload: object,
-    signature: string,
-    webhookSecret: string,
-  ): object {
+  private handleError(error: unknown): Error {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const message =
+        (typeof error.response?.data === "object" && "message" in error.response.data
+          ? (error.response.data as { message: string }).message
+          : undefined) ||
+        error.message;
+
+      return new Error(`API Error ${status ? `(${status})` : ""}: ${message}`);
+    }
+    return new Error("Unknown error occurred");
+  }
+
+  public verify(payload: object, signature: string, webhookSecret: string): object {
     return verifyWebhookSignature(payload, signature, webhookSecret);
   }
 }
+
+
 
 // For test use only
 export const __internal = { _testFetchSymbol };
