@@ -1,6 +1,6 @@
 {
   "name": "vartiq",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "TS/JS SDK for Vartiq",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,6 +13,14 @@
   },
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "vartiq",
+    "npm vartiq",
+    "vartiq nodejs sdk",
+    "vartiq typescript sdk",
+    "javascript",
+    "typescript"
   ],
   "scripts": {
     "build": "tsc",

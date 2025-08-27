@@ -4,6 +4,7 @@ import type {
   Webhook,
   WebhookMessage,
   CreateWebhookInput,
+  ApiErrorResponse,
 } from "./types/index";
 import crypto from "crypto";
 import axios, { AxiosInstance } from "axios";
@@ -225,19 +226,34 @@ export class Vartiq {
     }
   }
 
-  private handleError(error: unknown): Error {
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
-      const message =
-        (typeof error.response?.data === "object" && "message" in error.response.data
-          ? (error.response.data as { message: string }).message
-          : undefined) ||
-        error.message;
+private handleError(error: unknown): Error {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    const data: ApiErrorResponse | undefined = error.response?.data;
 
-      return new Error(`API Error ${status ? `(${status})` : ""}: ${message}`);
+    let message: string | undefined;
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "errors" in data &&
+      Array.isArray(data.errors) &&
+      data.errors.length > 0
+    ) {
+      message = data.errors[0].message;
+    } else if (data && typeof data === "object" && "message" in data) {
+      const msg = (data as { message?: unknown }).message;
+      message = typeof msg === "string" ? msg : String(msg);
+    } else {
+      message = error instanceof Error ? error.message : String(error);
     }
-    return new Error("Unknown error occurred");
+
+    return new Error(`Vartiq Error ${status ? ` (${status})` : ""}: ${message}`);
   }
+
+  return new Error("Unknown error occurred");
+}
+
 
   public verify(payload: object, signature: string, webhookSecret: string): object {
     return verifyWebhookSignature(payload, signature, webhookSecret);

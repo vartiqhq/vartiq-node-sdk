@@ -92,3 +92,8 @@ export type CreateWebhookInput =
   | BasicAuthWebhookInput
   | HmacAuthWebhookInput
   | ApiKeyAuthWebhookInput;
+
+export type ApiErrorResponse =
+| { errors: { message: string }[]; status: number; type: string }
+| { message: string }
+| unknown;
