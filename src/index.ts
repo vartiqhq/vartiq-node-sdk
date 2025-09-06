@@ -4,6 +4,8 @@ import type {
   Webhook,
   WebhookMessage,
   CreateWebhookInput,
+  UpdateWebhookInput,
+  WebhookMessageTarget,
   ApiErrorResponse,
 } from "./types/index";
 import crypto from "crypto";
@@ -159,10 +161,64 @@ class WebhookAPI {
     return res;
   }
 
-  async update(id: string, data: Partial<Webhook>): Promise<Webhook> {
+  async update(id: string, data: UpdateWebhookInput): Promise<Webhook> {
+    const basePayload: {
+      name?: string;
+      url?: string;
+      customHeaders?: Array<{ key: string; value: string }>;
+      authMethod?: "basic" | "hmac" | "apiKey";
+    } = {};
+
+    const { name, url, customHeaders } = data;
+    if (typeof name !== "undefined") basePayload.name = name;
+    if (typeof url !== "undefined") basePayload.url = url;
+    if (typeof customHeaders !== "undefined")
+      basePayload.customHeaders = customHeaders || [];
+
+    let authPayload: Record<string, unknown> = {};
+
+    if ("authMethod" in data && data.authMethod) {
+      basePayload.authMethod = data.authMethod;
+      switch (data.authMethod) {
+        case "basic": {
+          const { userName, password } = data;
+          if (!userName || !password) {
+            throw new Error(
+              "For basic auth, userName and password are required",
+            );
+          }
+          authPayload = { userName, password };
+          break;
+        }
+        case "hmac": {
+          const { hmacHeader, hmacSecret } = data;
+          if (!hmacHeader || !hmacSecret) {
+            throw new Error(
+              "For hmac auth, hmacHeader and hmacSecret are required",
+            );
+          }
+          authPayload = { hmacHeader, hmacSecret };
+          break;
+        }
+        case "apiKey": {
+          const { apiKey, apiKeyHeader } = data;
+          if (!apiKey || !apiKeyHeader) {
+            throw new Error(
+              "For apiKey auth, apiKey and apiKeyHeader are required",
+            );
+          }
+          authPayload = { apiKey, apiKeyHeader };
+          break;
+        }
+      }
+    }
+
     const res = await this.sdk.request<Webhook>(`/webhooks/${id}`, {
       method: "PUT",
-      data: JSON.stringify(data),
+      data: JSON.stringify({
+        ...basePayload,
+        ...authPayload,
+      }),
     });
     return res;
   }
@@ -175,10 +231,23 @@ class WebhookAPI {
 class WebhookMessageAPI {
   constructor(private sdk: Vartiq) {}
 
-  async create(appId: string, payload: object): Promise<WebhookMessage> {
+  async create(
+    target: WebhookMessageTarget,
+    payload: object,
+  ): Promise<WebhookMessage> {
+    // Normalize target to object shape the API expects
+    let body: Record<string, unknown>;
+    if ("appId" in target) {
+      body = { appId: target.appId, payload };
+    } else if ("webhookId" in target) {
+      body = { webhookId: target.webhookId, payload };
+    } else {
+      throw new Error("Invalid target provided. Use { appId } or { webhookId }.");
+    }
+
     const res = await this.sdk.request<WebhookMessage>(`/webhook-messages`, {
       method: "POST",
-      data: JSON.stringify({ appId, payload }),
+      data: JSON.stringify(body),
     });
     return res;
   }
