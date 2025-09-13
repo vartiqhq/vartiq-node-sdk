@@ -5,6 +5,7 @@ import type {
   WebhookMessage,
   CreateWebhookInput,
   ApiErrorResponse,
+  ApiSuccessResponse,
 } from "./types/index";
 import crypto from "crypto";
 import axios, { AxiosInstance } from "axios";
@@ -14,28 +15,28 @@ export * from "./types/index";
 class ProjectAPI {
   constructor(private sdk: Vartiq) {}
 
-  async create(data: { name: string; description: string }): Promise<Project> {
-    const res = await this.sdk.request<Project>(`/projects`, {
+  async create(data: { name: string; description: string }): Promise<ApiSuccessResponse<Project>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Project>>(`/projects`, {
       method: "POST",
       data: JSON.stringify(data),
     });
     return res;
   }
 
-  async list(): Promise<Project[]> {
-    const res = await this.sdk.request<Project[]>(`/projects`, {
+  async list(): Promise<ApiSuccessResponse<Project[]>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Project[]>>(`/projects`, {
       method: "GET",
     });
     return res;
   }
 
-  async get(id: string): Promise<Project> {
-    const res = await this.sdk.request<Project>(`/projects/${id}`);
+  async get(id: string): Promise<ApiSuccessResponse<Project>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Project>>(`/projects/${id}`);
     return res;
   }
 
-  async update(id: string, data: Partial<Project>): Promise<Project> {
-    const res = await this.sdk.request<Project>(`/projects/${id}`, {
+  async update(id: string, data: Partial<Project>): Promise<ApiSuccessResponse<Project>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Project>>(`/projects/${id}`, {
       method: "PUT",
       data: JSON.stringify(data),
     });
@@ -54,16 +55,16 @@ class AppAPI {
     name: string;
     projectId: string;
     description?: string;
-  }): Promise<App> {
-    const res = await this.sdk.request<App>(`/apps`, {
+  }): Promise<ApiSuccessResponse<App>> {
+    const res = await this.sdk.request<ApiSuccessResponse<App>>(`/apps`, {
       method: "POST",
       data: JSON.stringify(data),
     });
     return res;
   }
 
-  async list(projectId: string): Promise<App[]> {
-    const res = await this.sdk.request<App[]>(
+  async list(projectId: string): Promise<ApiSuccessResponse<App[]>> {
+    const res = await this.sdk.request<ApiSuccessResponse<App[]>>(
       `/apps?projectId=${projectId}`,
       {
         method: "GET",
@@ -72,13 +73,13 @@ class AppAPI {
     return res;
   }
 
-  async get(id: string): Promise<App> {
-    const res = await this.sdk.request<App>(`/apps/${id}`);
+  async get(id: string): Promise<ApiSuccessResponse<App>> {
+    const res = await this.sdk.request<ApiSuccessResponse<App>>(`/apps/${id}`);
     return res;
   }
 
-  async update(id: string, data: Partial<App>): Promise<App> {
-    const res = await this.sdk.request<App>(`/apps/${id}`, {
+  async update(id: string, data: Partial<App>): Promise<ApiSuccessResponse<App>> {
+    const res = await this.sdk.request<ApiSuccessResponse<App>>(`/apps/${id}`, {
       method: "PUT",
       data: JSON.stringify(data),
     });
@@ -96,7 +97,7 @@ class WebhookAPI {
     this.message = new WebhookMessageAPI(sdk);
   }
 
-  async create(data: CreateWebhookInput): Promise<Webhook> {
+  async create(data: CreateWebhookInput): Promise<ApiSuccessResponse<Webhook>> {
     // Runtime validation
     if (data.authMethod === "basic" && (!data.userName || !data.password)) {
       throw new Error("For basic auth, userName and password are required");
@@ -137,7 +138,7 @@ class WebhookAPI {
       };
     }
 
-    const res = await this.sdk.request<Webhook>(`/webhooks`, {
+    const res = await this.sdk.request<ApiSuccessResponse<Webhook>>(`/webhooks`, {
       method: "POST",
       data: JSON.stringify({
         ...basePayload,
@@ -147,20 +148,20 @@ class WebhookAPI {
     return res;
   }
 
-  async list(appId: string): Promise<Webhook[]> {
-    const res = await this.sdk.request<Webhook[]>(
+  async list(appId: string): Promise<ApiSuccessResponse<Webhook[]>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Webhook[]>>(
       `/webhooks?appId=${appId}`,
     );
     return res;
   }
 
-  async get(id: string): Promise<Webhook> {
-    const res = await this.sdk.request<Webhook>(`/webhooks/${id}`);
+  async get(id: string): Promise<ApiSuccessResponse<Webhook>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Webhook>>(`/webhooks/${id}`);
     return res;
   }
 
-  async update(id: string, data: Partial<Webhook>): Promise<Webhook> {
-    const res = await this.sdk.request<Webhook>(`/webhooks/${id}`, {
+  async update(id: string, data: Partial<Webhook>): Promise<ApiSuccessResponse<Webhook>> {
+    const res = await this.sdk.request<ApiSuccessResponse<Webhook>>(`/webhooks/${id}`, {
       method: "PUT",
       data: JSON.stringify(data),
     });
@@ -175,8 +176,8 @@ class WebhookAPI {
 class WebhookMessageAPI {
   constructor(private sdk: Vartiq) {}
 
-  async create(appId: string, payload: object): Promise<WebhookMessage> {
-    const res = await this.sdk.request<WebhookMessage>(`/webhook-messages`, {
+  async create(appId: string, payload: object): Promise<ApiSuccessResponse<WebhookMessage>> {
+    const res = await this.sdk.request<ApiSuccessResponse<WebhookMessage>>(`/webhook-messages`, {
       method: "POST",
       data: JSON.stringify({ appId, payload }),
     });

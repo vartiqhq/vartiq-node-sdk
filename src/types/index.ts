@@ -1,32 +1,21 @@
 export interface Project {
-  success: boolean;
-  message: string;
-  data: {  
-    id: string;
-    name: string;
-    description: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface App {
-  success: boolean;
-  message: string;
-  data: {
   id: string;
   name: string;
   description: string;
   environment: string;
   createdAt: string;
   updatedAt: string;
-  };
 }
 
 export interface Webhook {
-  success: boolean;
-  message: string;
-  data: {
   id: string;
   name: string;
   url: string;
@@ -43,13 +32,9 @@ export interface Webhook {
   };
   createdAt: string;
   updatedAt: string;
-  };
 }
 
 export interface WebhookMessage {
-  success: boolean;
-  message: string;
-  data: {
   id: string;
   webhook: string;
   payload: string;
@@ -58,7 +43,6 @@ export interface WebhookMessage {
   isDelivered: boolean;
   createdAt: string;
   updatedAt: string;
-  };
 }
 
 export type WebhookAuthMethod = "apiKey" | "basic" | "hmac";
@@ -93,6 +77,11 @@ export type CreateWebhookInput =
   | HmacAuthWebhookInput
   | ApiKeyAuthWebhookInput;
 
+export interface ApiSuccessResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 export type ApiErrorResponse =
 | { errors: { message: string }[]; status: number; type: string }
 | { message: string }
