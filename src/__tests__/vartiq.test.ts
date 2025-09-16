@@ -1,6 +1,6 @@
 import { Vartiq, verifyWebhookSignature } from "../index";
 import crypto from "crypto";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 
 const TEST_API_KEY = "test-api-key";
 const TEST_BASE_URL = "http://test.local";
