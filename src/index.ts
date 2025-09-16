@@ -65,12 +65,9 @@ class AppAPI {
   }
 
   async list(projectId: string): Promise<App[]> {
-    const res = await this.sdk.request<App[]>(
-      `/apps?projectId=${projectId}`,
-      {
-        method: "GET",
-      },
-    );
+    const res = await this.sdk.request<App[]>(`/apps?projectId=${projectId}`, {
+      method: "GET",
+    });
     return res;
   }
 
@@ -150,9 +147,7 @@ class WebhookAPI {
   }
 
   async list(appId: string): Promise<Webhook[]> {
-    const res = await this.sdk.request<Webhook[]>(
-      `/webhooks?appId=${appId}`,
-    );
+    const res = await this.sdk.request<Webhook[]>(`/webhooks?appId=${appId}`);
     return res;
   }
 
@@ -242,7 +237,9 @@ class WebhookMessageAPI {
     } else if ("webhookId" in target) {
       body = { webhookId: target.webhookId, payload };
     } else {
-      throw new Error("Invalid target provided. Use { appId } or { webhookId }.");
+      throw new Error(
+        "Invalid target provided. Use { appId } or { webhookId }.",
+      );
     }
 
     const res = await this.sdk.request<WebhookMessage>(`/webhook-messages`, {
@@ -281,7 +278,10 @@ export class Vartiq {
     this.webhook = new WebhookAPI(this);
   }
 
-  async request<T>(path: string, options: { method?: string; data?: unknown } = {}): Promise<T> {
+  async request<T>(
+    path: string,
+    options: { method?: string; data?: unknown } = {},
+  ): Promise<T> {
     try {
       const { method = "GET", data } = options;
       const response = await this.axiosInstance.request<T>({
@@ -295,41 +295,44 @@ export class Vartiq {
     }
   }
 
-private handleError(error: unknown): Error {
-  if (axios.isAxiosError(error)) {
-    const status = error.response?.status;
-    const data: ApiErrorResponse | undefined = error.response?.data;
+  private handleError(error: unknown): Error {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const data: ApiErrorResponse | undefined = error.response?.data;
 
-    let message: string | undefined;
+      let message: string | undefined;
 
-    if (
-      data &&
-      typeof data === "object" &&
-      "errors" in data &&
-      Array.isArray(data.errors) &&
-      data.errors.length > 0
-    ) {
-      message = data.errors[0].message;
-    } else if (data && typeof data === "object" && "message" in data) {
-      const msg = (data as { message?: unknown }).message;
-      message = typeof msg === "string" ? msg : String(msg);
-    } else {
-      message = error instanceof Error ? error.message : String(error);
+      if (
+        data &&
+        typeof data === "object" &&
+        "errors" in data &&
+        Array.isArray(data.errors) &&
+        data.errors.length > 0
+      ) {
+        message = data.errors[0].message;
+      } else if (data && typeof data === "object" && "message" in data) {
+        const msg = (data as { message?: unknown }).message;
+        message = typeof msg === "string" ? msg : String(msg);
+      } else {
+        message = error instanceof Error ? error.message : String(error);
+      }
+
+      return new Error(
+        `Vartiq Error ${status ? ` (${status})` : ""}: ${message}`,
+      );
     }
 
-    return new Error(`Vartiq Error ${status ? ` (${status})` : ""}: ${message}`);
+    return new Error("Unknown error occurred");
   }
 
-  return new Error("Unknown error occurred");
-}
-
-
-  public verify(payload: object, signature: string, webhookSecret: string): object {
+  public verify(
+    payload: object,
+    signature: string,
+    webhookSecret: string,
+  ): object {
     return verifyWebhookSignature(payload, signature, webhookSecret);
   }
 }
-
-
 
 // For test use only
 export const __internal = { _testFetchSymbol };

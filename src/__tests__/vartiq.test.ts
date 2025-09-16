@@ -1,4 +1,4 @@
-import { Vartiq, verifyWebhookSignature, } from "../index";
+import { Vartiq, verifyWebhookSignature } from "../index";
 import crypto from "crypto";
 import { describe, it, expect, vi } from "vitest";
 
@@ -36,10 +36,7 @@ describe("Vartiq", () => {
       json: async () => ({ foo: "bar" }),
       text: async () => "error",
     });
-    const v = new Vartiq(
-      TEST_API_KEY,
-      TEST_BASE_URL,
-    );
+    const v = new Vartiq(TEST_API_KEY, TEST_BASE_URL);
     const result = await v.request("/test", { method: "GET" });
     expect(mockFetch).toHaveBeenCalledWith(
       `${TEST_BASE_URL}/test`,
@@ -49,7 +46,7 @@ describe("Vartiq", () => {
           "x-api-key": TEST_API_KEY,
           "Content-Type": "application/json",
         }),
-      })
+      }),
     );
     expect(result).toEqual({ foo: "bar" });
   });
@@ -88,13 +85,13 @@ describe("verifyWebhookSignature", () => {
 
   it("returns payload if signature is valid", () => {
     expect(verifyWebhookSignature(payload, validSignature, secret)).toEqual(
-      payload
+      payload,
     );
   });
 
   it("throws if signature is invalid", () => {
     expect(() =>
-      verifyWebhookSignature(payload, "bad-signature", secret)
+      verifyWebhookSignature(payload, "bad-signature", secret),
     ).toThrow("Invalid webhook signature");
   });
 });

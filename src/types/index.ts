@@ -1,7 +1,7 @@
 export interface Project {
   success: boolean;
   message: string;
-  data: {  
+  data: {
     id: string;
     name: string;
     description: string;
@@ -14,12 +14,12 @@ export interface App {
   success: boolean;
   message: string;
   data: {
-  id: string;
-  name: string;
-  description: string;
-  environment: string;
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    name: string;
+    description: string;
+    environment: string;
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
@@ -27,22 +27,22 @@ export interface Webhook {
   success: boolean;
   message: string;
   data: {
-  id: string;
-  name: string;
-  url: string;
-  customHeaders: Array<{ key: string; value: string; _id?: string }>;
-  headers: Array<{ key?: string; value?: string; _id?: string }>;
-  authMethod: {
-    method: WebhookAuthMethod;
-    hmacHeader?: string;
-    hmacSecret?: string;
-    userName?: string;
-    password?: string;
-    apiKey?: string;
-    apiKeyHeader?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    name: string;
+    url: string;
+    customHeaders: Array<{ key: string; value: string; _id?: string }>;
+    headers: Array<{ key?: string; value?: string; _id?: string }>;
+    authMethod: {
+      method: WebhookAuthMethod;
+      hmacHeader?: string;
+      hmacSecret?: string;
+      userName?: string;
+      password?: string;
+      apiKey?: string;
+      apiKeyHeader?: string;
+    };
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
@@ -50,14 +50,14 @@ export interface WebhookMessage {
   success: boolean;
   message: string;
   data: {
-  id: string;
-  webhook: string;
-  payload: string;
-  signature: string;
-  headers: Array<{ key: string; value: string; _id?: string }>;
-  isDelivered: boolean;
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    webhook: string;
+    payload: string;
+    signature: string;
+    headers: Array<{ key: string; value: string; _id?: string }>;
+    isDelivered: boolean;
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
@@ -128,6 +128,6 @@ export type UpdateWebhookInput =
   | ApiKeyAuthUpdateWebhookInput;
 
 export type ApiErrorResponse =
-| { errors: { message: string }[]; status: number; type: string }
-| { message: string }
-| unknown;
+  | { errors: { message: string }[]; status: number; type: string }
+  | { message: string }
+  | unknown;
