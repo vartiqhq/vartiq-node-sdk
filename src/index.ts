@@ -69,7 +69,7 @@ class AppAPI {
     const res = await this.sdk.request<ApiSuccessResponse<App[]>>(
       `/apps?projectId=${projectId}`,
       {
-        method: "GET",.
+        method: "GET",
       },
     );
     return res;
