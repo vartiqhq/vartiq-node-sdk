@@ -1,64 +1,48 @@
 export interface Project {
-  success: boolean;
-  message: string;
-  data: {
-    id: string;
-    name: string;
-    description: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface App {
-  success: boolean;
-  message: string;
-  data: {
-    id: string;
-    name: string;
-    description: string;
-    environment: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  id: string;
+  name: string;
+  description: string;
+  environment: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Webhook {
-  success: boolean;
-  message: string;
-  data: {
-    id: string;
-    name: string;
-    url: string;
-    customHeaders: Array<{ key: string; value: string; _id?: string }>;
-    headers: Array<{ key?: string; value?: string; _id?: string }>;
-    authMethod: {
-      method: WebhookAuthMethod;
-      hmacHeader?: string;
-      hmacSecret?: string;
-      userName?: string;
-      password?: string;
-      apiKey?: string;
-      apiKeyHeader?: string;
-    };
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  name: string;
+  url: string;
+  customHeaders: Array<{ key: string; value: string; _id?: string }>;
+  headers: Array<{ key?: string; value?: string; _id?: string }>;
+  authMethod: {
+    method: WebhookAuthMethod;
+    hmacHeader?: string;
+    hmacSecret?: string;
+    userName?: string;
+    password?: string;
+    apiKey?: string;
+    apiKeyHeader?: string;
   };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface WebhookMessage {
-  success: boolean;
-  message: string;
-  data: {
-    id: string;
-    webhook: string;
-    payload: string;
-    signature: string;
-    headers: Array<{ key: string; value: string; _id?: string }>;
-    isDelivered: boolean;
-    createdAt: string;
-    updatedAt: string;
-  };
+  id: string;
+  webhook: string;
+  payload: string;
+  signature: string;
+  headers: Array<{ key: string; value: string; _id?: string }>;
+  isDelivered: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type WebhookMessageTarget = { appId: string } | { webhookId: string };
@@ -94,6 +78,12 @@ export type CreateWebhookInput =
   | BasicAuthWebhookInput
   | HmacAuthWebhookInput
   | ApiKeyAuthWebhookInput;
+
+export interface ApiSuccessResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
 
 // Update payload mirrors create but fields are optional and
 // excludes immutable `appId`.
