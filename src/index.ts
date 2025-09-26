@@ -83,8 +83,8 @@ class AppAPI {
     return res;
   }
 
-  async list(projectId: string): Promise<{ apps: ApiSuccessResponse<App[]> }> {
-    const res = await this.sdk.request<{ apps: ApiSuccessResponse<App[]> }>(
+  async list(projectId: string): Promise<ApiSuccessResponse<{ apps: App[] }>> {
+    const res = await this.sdk.request<ApiSuccessResponse<{ apps: App[] }>>(
       `/apps?projectId=${projectId}`,
       {
         method: "GET",
@@ -176,10 +176,12 @@ class WebhookAPI {
 
   async list(
     appId: string,
-  ): Promise<{ webhooks: ApiSuccessResponse<Webhook[]> }> {
-    const res = await this.sdk.request<{
-      webhooks: ApiSuccessResponse<Webhook[]>;
-    }>(`/webhooks?appId=${appId}`);
+  ): Promise<ApiSuccessResponse<{ webhooks: Webhook[] }>> {
+    const res = await this.sdk.request<
+      ApiSuccessResponse<{
+        webhooks: Webhook[];
+      }>
+    >(`/webhooks?appId=${appId}`);
     return res;
   }
 
@@ -299,14 +301,13 @@ class WebhookMessageAPI {
       >;
     }>
   > {
-    const res =
-      await this.sdk.request<
-        ApiSuccessResponse<{
-          webhookMessages: Array<
-            WebhookMessage & { attempts: WebhookMessageAttempt[] }
-          >;
-        }>
-      >(`webhook-messages`);
+    const res = await this.sdk.request<
+      ApiSuccessResponse<{
+        webhookMessages: Array<
+          WebhookMessage & { attempts: WebhookMessageAttempt[] }
+        >;
+      }>
+    >(`/webhook-messages`);
     return res;
   }
 }
