@@ -1,5 +1,6 @@
 export interface Project {
   id: string;
+  appCount: number;
   name: string;
   description: string;
   createdAt: string;
@@ -43,6 +44,13 @@ export interface WebhookMessage {
   isDelivered: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface WebhookMessageAttempt {
+  _id: string;
+  response: string;
+  statusCode: number;
+  createdAt: string;
 }
 
 export type WebhookMessageTarget = { appId: string } | { webhookId: string };

@@ -8,6 +8,7 @@ import type {
   WebhookMessageTarget,
   ApiErrorResponse,
   ApiSuccessResponse,
+  WebhookMessageAttempt,
 } from "./types/index";
 import crypto from "crypto";
 import axios, { AxiosInstance } from "axios";
@@ -82,8 +83,8 @@ class AppAPI {
     return res;
   }
 
-  async list(projectId: string): Promise<ApiSuccessResponse<App[]>> {
-    const res = await this.sdk.request<ApiSuccessResponse<App[]>>(
+  async list(projectId: string): Promise<{ apps: ApiSuccessResponse<App[]> }> {
+    const res = await this.sdk.request<{ apps: ApiSuccessResponse<App[]> }>(
       `/apps?projectId=${projectId}`,
       {
         method: "GET",
@@ -173,10 +174,12 @@ class WebhookAPI {
     return res;
   }
 
-  async list(appId: string): Promise<ApiSuccessResponse<Webhook[]>> {
-    const res = await this.sdk.request<ApiSuccessResponse<Webhook[]>>(
-      `/webhooks?appId=${appId}`,
-    );
+  async list(
+    appId: string,
+  ): Promise<{ webhooks: ApiSuccessResponse<Webhook[]> }> {
+    const res = await this.sdk.request<{
+      webhooks: ApiSuccessResponse<Webhook[]>;
+    }>(`/webhooks?appId=${appId}`);
     return res;
   }
 
@@ -286,6 +289,24 @@ class WebhookMessageAPI {
         data: JSON.stringify(body),
       },
     );
+    return res;
+  }
+
+  async list(): Promise<
+    ApiSuccessResponse<{
+      webhookMessages: Array<
+        WebhookMessage & { attempts: WebhookMessageAttempt[] }
+      >;
+    }>
+  > {
+    const res =
+      await this.sdk.request<
+        ApiSuccessResponse<{
+          webhookMessages: Array<
+            WebhookMessage & { attempts: WebhookMessageAttempt[] }
+          >;
+        }>
+      >(`webhook-messages`);
     return res;
   }
 }
