@@ -25,15 +25,15 @@ export interface App {
   __v: number;
 }
 
-interface WehookHeader {
+interface WebhookHeader {
   key: string;
   value: string;
   _id?: string;
 }
 export interface Webhook {
   company: string;
-  customHeaders: WehookHeader[];
-  headers: WehookHeader[];
+  customHeaders: WebhookHeader[];
+  headers: WebhookHeader[];
   id: string;
   project: string;
   url: string;
@@ -54,8 +54,8 @@ export interface Webhook {
 export interface WebhookMessageAttempt {
   _id: string;
   awsMessageId: string | null;
-  reqHeaders: WehookHeader[];
-  resHeaders: WehookHeader[];
+  reqHeaders: WebhookHeader[];
+  resHeaders: WebhookHeader[];
   id: string;
   isProcessed: boolean;
   isResend: boolean;
@@ -71,7 +71,7 @@ export interface WebhookMessage {
   id: string;
   project: string;
   environment: string;
-  headers: WehookHeader[];
+  headers: WebhookHeader[];
   status: string;
   attempts: WebhookMessageAttempt[];
   webhook: string;
