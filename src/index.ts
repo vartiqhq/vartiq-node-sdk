@@ -82,13 +82,14 @@ class AppAPI {
     return res;
   }
 
-  async list(projectId: string): Promise<ApiSuccessResponse<App[]>> {
-    const res = await this.sdk.request<ApiSuccessResponse<App[]>>(
-      `/apps?projectId=${projectId}`,
-      {
-        method: "GET",
-      },
-    );
+  async list(
+    projectId: string,
+  ): Promise<ApiSuccessResponse<App[]> & { totalCount: number }> {
+    const res = await this.sdk.request<
+      ApiSuccessResponse<App[]> & { totalCount: number }
+    >(`/apps?projectId=${projectId}`, {
+      method: "GET",
+    });
     return res;
   }
 
@@ -173,10 +174,12 @@ class WebhookAPI {
     return res;
   }
 
-  async list(appId: string): Promise<ApiSuccessResponse<Webhook[]>> {
-    const res = await this.sdk.request<ApiSuccessResponse<Webhook[]>>(
-      `/webhooks?appId=${appId}`,
-    );
+  async list(
+    appId: string,
+  ): Promise<ApiSuccessResponse<Webhook[]> & { totalCount: number }> {
+    const res = await this.sdk.request<
+      ApiSuccessResponse<Webhook[]> & { totalCount: number }
+    >(`/webhooks?appId=${appId}`);
     return res;
   }
 
@@ -286,6 +289,23 @@ class WebhookMessageAPI {
         data: JSON.stringify(body),
       },
     );
+    return res;
+  }
+
+  async list(): Promise<
+    ApiSuccessResponse<WebhookMessage[]> & {
+      totalCount: number;
+      deliveredCount: number;
+      failedCount: number;
+    }
+  > {
+    const res = await this.sdk.request<
+      ApiSuccessResponse<WebhookMessage[]> & {
+        totalCount: number;
+        deliveredCount: number;
+        failedCount: number;
+      }
+    >(`/webhook-messages`);
     return res;
   }
 }
