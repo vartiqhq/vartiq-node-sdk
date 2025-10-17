@@ -1,27 +1,46 @@
 export interface Project {
+  company: string;
   id: string;
   name: string;
-  description: string;
   createdAt: string;
   updatedAt: string;
+  __v: number;
+  appCount: number;
+  webhookMessageCount: number;
+  failedWebhookMessageCount: number;
 }
 
 export interface App {
+  company: string;
+  description: string;
+  environment: {
+    _id: string;
+    name: string;
+  };
   id: string;
   name: string;
-  description: string;
-  environment: string;
+  project: string;
   createdAt: string;
   updatedAt: string;
+  __v: number;
 }
 
+interface WebhookHeader {
+  key: string;
+  value: string;
+  _id?: string;
+}
 export interface Webhook {
+  company: string;
+  customHeaders: WebhookHeader[];
+  headers: WebhookHeader[];
   id: string;
-  name: string;
+  project: string;
   url: string;
-  customHeaders: Array<{ key: string; value: string; _id?: string }>;
-  headers: Array<{ key?: string; value?: string; _id?: string }>;
-  authMethod: {
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  authMethod?: {
     method: WebhookAuthMethod;
     hmacHeader?: string;
     hmacSecret?: string;
@@ -30,19 +49,38 @@ export interface Webhook {
     apiKey?: string;
     apiKeyHeader?: string;
   };
-  createdAt: string;
-  updatedAt: string;
 }
 
-export interface WebhookMessage {
+export interface WebhookMessageAttempt {
+  _id: string;
+  awsMessageId: string | null;
+  reqHeaders: WebhookHeader[];
+  resHeaders: WebhookHeader[];
   id: string;
+  isProcessed: boolean;
+  isResend: boolean;
+  response: string;
+  statusCode: number;
+  webhookMessage: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+export interface WebhookMessage {
+  company: string;
+  id: string;
+  project: string;
+  environment: string;
+  headers: WebhookHeader[];
+  status: string;
+  attempts: WebhookMessageAttempt[];
   webhook: string;
   payload: string;
   signature: string;
-  headers: Array<{ key: string; value: string; _id?: string }>;
   isDelivered: boolean;
   createdAt: string;
   updatedAt: string;
+  __v: number;
 }
 
 export type WebhookMessageTarget = { appId: string } | { webhookId: string };
@@ -81,7 +119,7 @@ export type CreateWebhookInput =
 
 export interface ApiSuccessResponse<T> {
   success: boolean;
-  message: string;
+  message?: string;
   data: T;
 }
 
