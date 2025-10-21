@@ -259,7 +259,13 @@ class WebhookAPI {
   }
 
   async delete(id: string): Promise<{ message: string; success: boolean }> {
-    return this.sdk.request(`/webhooks/${id}`, { method: "DELETE" });
+    if (typeof id !== "string" || !id) {
+      throw new Error("id must be a non-empty string.");
+    }
+    return this.sdk.request(`/webhooks`, {
+      method: "DELETE",
+      data: JSON.stringify({ webhookIds: [id] }),
+    });
   }
 }
 
